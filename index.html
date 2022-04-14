@@ -16,7 +16,9 @@
           document.body.appendChild(app.view);
 
           let enemy_text = PIXI.Texture.from('Icons/enemy-helicopter256-fl.png');
-
+          enemy_text.width = 30;
+          enemy_text.heigt = 30;
+          
           // Create the sprite and add it to the stage
           let sprite = PIXI.Sprite.from(enemy_text);
           app.stage.addChild(sprite);
