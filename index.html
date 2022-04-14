@@ -15,12 +15,12 @@
           let app = new PIXI.Application({ width: 640, height: 360 });
           document.body.appendChild(app.view);
 
-          let enemy_text = PIXI.Texture.from('Icons/enemy-helicopter256-fl.png');
-          enemy_text.width = 30;
-          enemy_text.heigt = 30;
-          
+          let enemy_text = new PIXI.Texture.from('Icons/enemy-helicopter256-fl.png');
+
           // Create the sprite and add it to the stage
-          let sprite = PIXI.Sprite.from(enemy_text);
+          let sprite = new PIXI.Sprite.from(enemy_text);
+          sprite.setTransform(0, 0, 0.2, 0.2, 0, 0, 0, 0, 0);
+          
           app.stage.addChild(sprite);
 
           // Add a ticker callback to move the sprite back and forth
