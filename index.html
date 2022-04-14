@@ -20,14 +20,14 @@
           // Create the sprite and add it to the stage
           let sprite = new PIXI.Sprite.from(enemy_text);
           sprite.setTransform(0, 0, 0.2, 0.2, 0, 0, 0, 0, 0);
-          
+
           app.stage.addChild(sprite);
 
           // Add a ticker callback to move the sprite back and forth
           let elapsed = 0.0;
           app.ticker.add((delta) => {
             elapsed += delta;
-            sprite.x = 100.0 + Math.cos(elapsed/50.0) * 100.0;
+            sprite.x = 640.0 * (1 + Math.cos(elapsed/50.0));
           });
         </script>
     </body>
