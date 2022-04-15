@@ -8,7 +8,9 @@ function GameObject(posX, posY, imgurl) {
     let sprite = new PIXI.Sprite.from(gameObj);
 
     sprite.setTransform(0, 0, 0.2, 0.2, 0, 0, 0, 0, 0);
-
+    sprite.x = posX;
+    sprite.y = posY;
+    
     return sprite;
 }
 
