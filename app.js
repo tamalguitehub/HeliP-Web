@@ -6,7 +6,7 @@ const HEIGHT = 600;
 let Enemies = [];
 let faceEast = [];
 
-fucntion tick() {
+function tick() {
     for(int i = 0; i < Enemies.length(); ++i) {
         if(faceEast[i]) {
             if(Enemies[i].x + 5 > WIDTH - 30) {
