@@ -17,7 +17,7 @@
         <title>HeliP</title>
     </head>
     <body>
-        <center><div id="game-frame">Hello!</div></center>
+        <center><div id="game-frame"></div></center>
         <script>
           // Create the application helper and add its render target to the page
           let app = new PIXI.Application({ width: 640, height: 640, backgroundColor: 0x1099bb});
@@ -38,7 +38,7 @@
           app.ticker.add((delta) => {
             elapsed += delta;
             if(faceEast) {
-                if(sprite.x + 5 > 640) {
+                if(sprite.x + 5 > 640 - 30) {
                     faceEast = false;
                     sprite.x -= 5;
                 } else {
