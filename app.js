@@ -3,6 +3,10 @@
 const WIDTH = 800;
 const HEIGHT = 600;
 
+function myRandom(low, high) {
+    return low + Math.floor(Math.random() * (high - low + 1));
+}
+
 function GameObject(posX, posY, imgurl) {
     let gameObj = new PIXI.Texture.from(imgurl);
     let sprite = new PIXI.Sprite.from(gameObj);
@@ -10,8 +14,12 @@ function GameObject(posX, posY, imgurl) {
     sprite.setTransform(0, 0, 0.2, 0.2, 0, 0, 0, 0, 0);
     sprite.x = posX;
     sprite.y = posY;
-    
+
     return sprite;
+}
+
+function generateLevel() {
+    
 }
 
 let app = new PIXI.Application({ width: WIDTH, height: HEIGHT, backgroundColor: 0xfae13c});
