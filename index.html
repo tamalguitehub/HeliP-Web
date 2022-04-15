@@ -2,6 +2,13 @@
 <html lang="en" dir="ltr">
     <head>
         <meta charset="utf-8">
+        <style media="screen">
+            .div {
+                width: 640;
+                height: 640;
+            }
+        </style>
+
         <script src="airtable.browser.js" charset="utf-8"></script>
         <script src="air.js" charset="utf-8"></script>
 
@@ -10,10 +17,11 @@
         <title>HeliP</title>
     </head>
     <body>
+        <center><div>Hello!</div></center>
         <script>
           // Create the application helper and add its render target to the page
           let app = new PIXI.Application({ width: 640, height: 640, backgroundColor: 0x1099bb});
-          document.body.appendChild(app.view);
+          document.div.appendChild(app.view);
 
           let enemy_text = new PIXI.Texture.from('Icons/enemy-helicopter256-fl.png');
 
