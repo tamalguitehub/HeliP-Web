@@ -7,7 +7,7 @@ let Enemies = [];
 let faceEast = [];
 
 function tick() {
-    for(int i = 0; i < Enemies.length(); ++i) {
+    for(let i = 0; i < Enemies.length(); ++i) {
         if(faceEast[i]) {
             if(Enemies[i].x + 5 > WIDTH - 30) {
                 faceEast[i] = false;
