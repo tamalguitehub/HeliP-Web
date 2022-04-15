@@ -12,7 +12,7 @@ let enemy_text = new PIXI.Texture.from('Icons/enemy-helicopter256-fl.png');
 let sprite = new PIXI.Sprite.from(enemy_text);
 sprite.setTransform(0, 0, 0.2, 0.2, 0, 0, 0, 0, 0);
 
-let player = GameObject(WIDTH / 2, HEIGHT - 50);
+let player = GameObject(WIDTH / 2, HEIGHT - 50, 'Icons/player256-fl.png');
 
 app.stage.addChild(sprite);
 app.stage.addChild(player);
