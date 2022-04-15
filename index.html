@@ -17,11 +17,11 @@
         <title>HeliP</title>
     </head>
     <body>
-        <center><div>Hello!</div></center>
+        <center><div id="game-frame">Hello!</div></center>
         <script>
           // Create the application helper and add its render target to the page
           let app = new PIXI.Application({ width: 640, height: 640, backgroundColor: 0x1099bb});
-          document.div.appendChild(app.view);
+          document.getElementById("game-frame").appendChild(app.view);
 
           let enemy_text = new PIXI.Texture.from('Icons/enemy-helicopter256-fl.png');
 
