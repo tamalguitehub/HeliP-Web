@@ -7,7 +7,7 @@ let Enemies = [];
 let faceEast = [];
 
 function tick() {
-    for(let i = 0; i < Enemies.length(); ++i) {
+    for(let i = 0; i < Enemies.length; ++i) {
         if(faceEast[i]) {
             if(Enemies[i].x + 5 > WIDTH - 30) {
                 faceEast[i] = false;
@@ -44,9 +44,16 @@ function GameObject(posX, posY, imgurl) {
 function generateLevel() {
     const nEnemies = myRandom(5, 15);
 
+    console.log(nEnemies);
+
     for(let i = 0; i < nEnemies; ++i) {
         Enemies.push(GameObject(myRandom(10, WIDTH - 50), myRandom(50, 150), 'Icons/enemy-helicopter256-fl.png'));
-        faceEast.push(true);
+        if(myRandom(0, 1)) {
+            faceEast.push(true);
+        } else {
+            faceEast.push(false);
+        }
+
     }
 }
 
@@ -61,8 +68,14 @@ sprite.setTransform(0, 0, 0.2, 0.2, 0, 0, 0, 0, 0);
 
 let player = GameObject(WIDTH / 2, HEIGHT - 50, 'Icons/player256-fl.png');
 
-app.stage.addChild(sprite);
+//app.stage.addChild(sprite);
 app.stage.addChild(player);
+
+generateLevel();
+
+for(let i = 0; i < Enemies.length; ++i) {
+    app.stage.addChild(Enemies[i]);
+}
 
 // Add a ticker callback to move the sprite back and forth
 let elapsed = 0.0;
