@@ -3,6 +3,15 @@
 const WIDTH = 800;
 const HEIGHT = 600;
 
+function GameObject(posX, posY, imgurl) {
+    let gameObj = new PIXI.Texture.from(imgurl);
+    let sprite = new PIXI.Sprite.from(gameObj);
+
+    sprite.setTransform(0, 0, 0.2, 0.2, 0, 0, 0, 0, 0);
+
+    return sprite;
+}
+
 let app = new PIXI.Application({ width: WIDTH, height: HEIGHT, backgroundColor: 0xfae13c});
 document.getElementById("game-frame").appendChild(app.view);
 
