@@ -3,6 +3,7 @@
 const WIDTH = window.innerWidth;
 const HEIGHT = 600;
 
+console.log(WIDTH + " " + HEIGHT);
 
 let Enemies = [];
 let faceEast = [];
@@ -82,10 +83,9 @@ function playerMov(event) {
     console.log(window.screen.width  + ' ' + window.devicePixelRatio);
     console.log(event.x + ' ' + event.y);
     console.log(player.x + ' ' + player.y);
-    /*var x = event.x - (screen.width/2 - 400);
 
-    console.log(x + ' ' + playerMoves);
-
+    var x = event.x;
+    
     if(player.x > x) {
         playerMoves = Math.ceil((player.x - x)/5);
         playerDirection = 'left';
@@ -93,7 +93,7 @@ function playerMov(event) {
     else {
         playerMoves = Math.ceil((x - player.x)/5);
         playerDirection = 'right';
-    }*/
+    }
 }
 
 //app.stage.addChild(sprite);
