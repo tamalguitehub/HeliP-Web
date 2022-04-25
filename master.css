@@ -1,11 +1,6 @@
 body {
-    background-color: rgb(36, 237, 150);
+    margin: 0px 0px 0px 0px;
 }
 div#game-heading {
     font-size: 30px;
-}
-
-div#game-frame {
-    width: 800px;
-    height: 600px;
 }

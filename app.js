@@ -1,6 +1,6 @@
 // Create the application helper and add its render target to the page
 
-const WIDTH = 800;
+const WIDTH = window.innerWidth;
 const HEIGHT = 600;
 
 
@@ -79,9 +79,10 @@ let player = GameObject(WIDTH / 2, HEIGHT - 50, 'Icons/player256-fl.png');
 document.getElementById("game-frame").addEventListener('click', playerMov);
 
 function playerMov(event) {
-    //console.log(event.details);
+    console.log(window.screen.width  + ' ' + window.devicePixelRatio);
     console.log(event.x + ' ' + event.y);
-    var x = event.x - (screen.width/2 - 400);
+    console.log(player.x + ' ' + player.y);
+    /*var x = event.x - (screen.width/2 - 400);
 
     console.log(x + ' ' + playerMoves);
 
@@ -92,7 +93,7 @@ function playerMov(event) {
     else {
         playerMoves = Math.ceil((x - player.x)/5);
         playerDirection = 'right';
-    }
+    }*/
 }
 
 //app.stage.addChild(sprite);
