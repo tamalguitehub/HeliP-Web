@@ -12,8 +12,40 @@
         <script src="https://pixijs.download/release/pixi.min.js"></script>
 
         <title>HeliP</title>
+
+        <style>
+            .button {
+              border: none;
+              color: white;
+              padding: 16px 32px;
+              text-align: center;
+              text-decoration: none;
+              display: inline-block;
+              font-size: 16px;
+              margin: 4px 2px;
+              transition-duration: 0.4s;
+              cursor: pointer;
+              position: absolute;
+              top: 50%;
+              left: 50%;
+            }
+
+            .button1 {
+
+              background-color: #4CAF50;
+              color: white;
+              border: 2px solid #4CAF50;
+            }
+
+            .button1:hover {
+              background-color: white;
+              color: black;
+            }
+        </style>
     </head>
-    <body id = "game-frame">
+    <body>
+        <button class="button button1" id="start-button" onclick="startGame()">Start</button>
+        <div id="game-frame"></div>
         <script src="app.js" charset="utf-8"></script>
     </body>
 </html>
