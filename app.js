@@ -2,7 +2,7 @@ const WIDTH = window.innerWidth;
 const HEIGHT = 600;
 
 // Adding Mouse Click Listener for the game
-document.getElementById("game-frame").addEventListener('click', playerMov);
+document.addEventListener('click', playerMov);
 
 // Adding Keyboard Listener for the game
 document.addEventListener('keydown', playerMovKey);
