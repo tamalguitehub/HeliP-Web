@@ -1,6 +1,11 @@
 const WIDTH = window.innerWidth;
 const HEIGHT = 600;
 
+const ENEMY_SPEED = 5;
+const BULLET_SPEED = 5;
+const MEDIC_SPEED = 2;
+const PLAYER_SPEED = 10;
+
 // Adding Mouse Click Listener for the game
 document.addEventListener('click', playerMov);
 
@@ -14,6 +19,9 @@ let graphics = new PIXI.Graphics();
 
 let isHelipRunning = false;
 
+let playerRight = PIXI.BaseTexture.from('Icons/player256-fl.png');
+let playerLeft = PIXI.BaseTexture.from('Icons/player256-fr.png');
+
 let enemyBuffImgW = PIXI.BaseTexture.from('Icons/enemy-helicopter256-fl.png');
 let enemyBuffImgE = PIXI.BaseTexture.from('Icons/enemy-helicopter256-fr.png');
 
@@ -22,229 +30,53 @@ let medicBuffImg = PIXI.BaseTexture.from('Icons/pharmacy256.png');
 let barrierBuffImg = PIXI.BaseTexture.from('Icons/barrier256.png');
 
 const BULLET_DROP_PROB = 1500;
-const MEDIC_DROP_PROB = 100;
-
-let HealthX = 100;
-let Enemies = [];
-let faceEast = [];
-let Bullets = [];
-let Medics = [];
-let Barrier = [];
-let healthBarrier = [];
-
-let player = GameObject(WIDTH / 2, HEIGHT - 50, 0.2, 'Icons/player256-fl.png');
+const MEDIC_DROP_PROB = 1000;
 
 let playerMoves = 0;
-let playerDirection = 'right';
 
 let tickCount = 0;
-const MAX_TICK_COUNT = 30;
+const MAX_TICK_COUNT = 60;
+
+let levelTimer = 0;
+const MAX_LEVEL_TIMER = 15;
+
+let score = 0;
+
+let scoreText = new PIXI.Text("Score : " + score.toString());
+scoreText.x = WIDTH - 200;
+scoreText.y = 15;
+
+const style = new PIXI.TextStyle({fill: "#ff2600"});
+healthText = new PIXI.Text('100', style);
+healthText.x = 130;
+healthText.y = 10;
 
 function tick() {
-    if(HealthX <= 0) {
+    if(level.healthPlayer <= 0) {
         isHelipRunning = false;
     }
 
+    level.tick();
+
     tickCount++;
 
-    let bulletGenerated = [];
-    for(let i = 0; i < Enemies.length; ++i) {
-        if(faceEast[i]) {
-            if(Enemies[i].x + 5 > WIDTH - 30) {
-                faceEast[i] = false;
-                Enemies[i].texture = PIXI.Texture.from(enemyBuffImgW);
-                Enemies[i].x -= 5;
-            } else {
-                Enemies[i].x +=  5;
-            }
-        }
-        else {
-            if(Enemies[i].x - 5 < 0) {
-                faceEast[i] = true;
-                Enemies[i].texture = PIXI.Texture.from(enemyBuffImgE);
-                Enemies[i].x += 5;
-            } else {
-                Enemies[i].x -=  5;
-            }
-        }
-
-        if(tickCount === MAX_TICK_COUNT) {
-            var genBul = myRandom(0, 2000);
-
-            if(genBul < BULLET_DROP_PROB) {
-                var newBullet = GameObject(Enemies[i].x, Enemies[i].y, 0.1, bulletBuffImg);
-                bulletGenerated.push(newBullet);
-                console.log(newBullet.width + " " + newBullet.height);
-                app.stage.addChild(newBullet);
-            }
-        }
-    }
-
-    var genMed = myRandom(0, 5000);
-
-    if(genMed < MEDIC_DROP_PROB) {
-        var newMedic = GameObject(myRandom(20, WIDTH - 20), myRandom(20, 50), 0.1, medicBuffImg);
-        Medics.push(newMedic);
-        //console.log(newBullet.width + " " + newBullet.height);
-        app.stage.addChild(newMedic);
-    }
-
-    for(let i = 0; i < Medics.length; ++i) {
-        Medics[i].y += 5;
-
-        var Xp = player.x;
-        var Yp = player.y;
-
-        var Xb = Medics[i].x;
-        var Yb = Medics[i].y;
-
-        var collided = false;
-        if(Xp > Xb && Xp - Xb < Medics[i].width) {
-            if(Yp > Yb && Yp - Yb < Medics[i].height) {
-                collided = true;
-            }
-            else if(Yp < Yb && Yb - Yp < player.height) {
-                collided = true;
-            }
-        }
-        else if(Xp < Xb && Xb - Xp < player.width) {
-            if(Yp > Yb && Yp - Yb < Medics[i].height) {
-                collided = true;
-            }
-            else if(Yp < Yb && Yb - Yp < player.height) {
-                collided = true;
-            }
-        }
-
-        if(collided) {
-            HealthX = Math.min(HealthX + 10, 100);
-            Medics[i].y = HEIGHT + 5;
-        }
-
-        if(Medics[i].y >= HEIGHT) {
-            if(i != 0) {
-                var tmp = Medics[0];
-                Medics[0] = Medics[i];
-                Medics[i] = tmp;
-            }
-
-            app.stage.removeChild(Medics[0]);
-            Medics.shift();
-        }
-    }
-
-    if(tickCount === MAX_TICK_COUNT && bulletGenerated.length) {
-        bulletGenerated.sort(function(Ba, Bb) {return Ba.y - Bb.y});
-        Bullets.push(bulletGenerated);
-    }
-
-    for(let i = 0; i < Bullets.length; ++i) {
-        for(let j = 0; j < Bullets[i].length; ++j) {
-            Bullets[i][j].y += 5;
-
-            var Xp = player.x;
-            var Yp = player.y;
-
-            var Xb = Bullets[i][j].x;
-            var Yb = Bullets[i][j].y;
-
-            var collided = false;
-            if(Xp > Xb && Xp - Xb < Bullets[i][j].width) {
-                if(Yp > Yb && Yp - Yb < Bullets[i][j].height) {
-                    collided = true;
-                }
-                else if(Yp < Yb && Yb - Yp < player.height) {
-                    collided = true;
-                }
-            }
-            else if(Xp < Xb && Xb - Xp < player.width) {
-                if(Yp > Yb && Yp - Yb < Bullets[i][j].height) {
-                    collided = true;
-                }
-                else if(Yp < Yb && Yb - Yp < player.height) {
-                    collided = true;
-                }
-            }
-
-            if(collided) {
-                HealthX -= 5;
-                Bullets[i][j].y = HEIGHT + 5;
-            }
-
-            for(let k = 0; k < Barrier.length; ++k) {
-                var Xp = Barrier[k].x;
-                var Yp = Barrier[k].y;
-
-                var Xb = Bullets[i][j].x;
-                var Yb = Bullets[i][j].y;
-
-                var collided = false;
-
-                if(Xp > Xb && Xp - Xb < Bullets[i][j].width) {
-                    if(Yp > Yb && Yp - Yb < Bullets[i][j].height) {
-                        collided = true;
-                    }
-                    else if(Yp < Yb && Yb - Yp < Barrier.height) {
-                        collided = true;
-                    }
-                }
-                else if(Xp < Xb && Xb - Xp < Barrier[k].width) {
-                    if(Yp > Yb && Yp - Yb < Bullets[i][j].height) {
-                        collided = true;
-                    }
-                    else if(Yp < Yb && Yb - Yp < Barrier[k].height) {
-                        collided = true;
-                    }
-                }
-
-                if(collided) {
-                    healthBarrier[i] = Math.max(0, healthBarrier[i] - 1);
-                    Bullets[i][j].y = HEIGHT + 5;
-                }
-
-                if(healthBarrier[k] === 0) {
-                    healthBarrier[k] = -10;
-                    app.stage.removeChild(Barrier[k]);
-                }
-            }
-        }
-    }
-
-    if(Bullets.length) {
-        while(Bullets[0].length && Bullets[0][0].y >= HEIGHT) {
-            Bullets[0].shift();
-            app.stage.removeChild(Bullets[0][0]);
-        }
-
-        if(!Bullets[0].length) {
-            Bullets.shift();
-        }
-    }
-
     if(tickCount === MAX_TICK_COUNT) {
+        level.generateBullet();
+        level.generateMedic();
+
         graphics.beginFill(0x080807);
         graphics.drawRect(8, 8, 104, 34);
         graphics.endFill();
         graphics.beginFill(0xfc2403);
-        graphics.drawRect(10, 10, HealthX, 30);
+        graphics.drawRect(10, 10, level.healthPlayer, 30);
         graphics.endFill();
         graphics.beginFill(0xffffff);
-        graphics.drawRect(HealthX + 10, 10, 100 - HealthX, 30);
+        graphics.drawRect(level.healthPlayer + 10, 10, 100 - level.healthPlayer, 30);
         graphics.endFill();
+
         tickCount = 0;
-
-        console.log(Bullets.length);
-    }
-
-
-    if(playerMoves) {
-        if(playerDirection === 'left' && player.x - 5 > 0) {
-            player.x -= 5;
-        }
-        else if(playerDirection === 'right' && player.x + 5 < WIDTH) {
-            player.x += 5;
-        }
-        playerMoves--;
+        score++;
+        levelTimer++;
     }
 }
 
@@ -263,76 +95,324 @@ function GameObject(posX, posY, scale, imgBuff) {
     return sprite;
 }
 
-function generateLevel() {
-    const nEnemies = 10; //myRandom(5, 15);
+class Level {
+    constructor(nEnemies, nBarriers, bulletDropProb, helperDropProb) {
+        this.nEnemies = nEnemies;
+        this.nBarriers = nBarriers;
+        this.bulletDropProb = bulletDropProb;
+        this.helperDropProb = helperDropProb;
 
-    console.log(nEnemies);
+        this.Player = null;
+        this.Enemies = [];
+        this.Barriers = [];
+        this.Bullets = [];
+        this.Medics = [];
 
-    for(let i = 0; i < nEnemies; ++i) {
-        if(myRandom(0, 1)) {
-            faceEast.push(true);
-            Enemies.push(GameObject(myRandom(10, WIDTH - 50), myRandom(50, 150), 0.2, enemyBuffImgE));
-        } else {
-            faceEast.push(false);
-            Enemies.push(GameObject(myRandom(10, WIDTH - 50), myRandom(50, 150), 0.2, enemyBuffImgW));
+        this.healthPlayer = 100;
+        this.faceEast = [];
+        this.healthBarrier = [];
+        this.playerDirection = 'Right';
+
+        this.currLevel = 1;
+    }
+
+    generateLevel() {
+        app.stage.removeChildren(0, app.stage.children.length);
+
+        var levelText = new PIXI.Text('Level : ' + this.currLevel.toString());
+        levelText.x = WIDTH/2 - 50;
+        levelText.y = 15;
+
+        app.stage.addChild(levelText);
+
+        app.stage.addChild(scoreText);
+        app.stage.addChild(healthText);
+
+        // Generating Player
+        this.Player = GameObject(WIDTH/2, HEIGHT - 50, 0.2, playerRight);
+
+        // Generating Enemies
+        for(let i = 0; i < this.nEnemies; ++i) {
+            if(myRandom(0, 1)) {
+                this.faceEast.push(true);
+                this.Enemies.push(GameObject(myRandom(0, WIDTH), myRandom(50, 150), 0.2, enemyBuffImgE));
+            } else {
+                this.faceEast.push(false);
+                this.Enemies.push(GameObject(myRandom(0, WIDTH), myRandom(50, 150), 0.2, enemyBuffImgW));
+            }
+        }
+
+        // Generating Barriers
+        for(let i = 0; i < this.nBarriers; ++i) {
+            var newBarrier = GameObject(myRandom(10, WIDTH - 10), myRandom(HEIGHT - 200, HEIGHT - 100), 0.2, barrierBuffImg);
+            this.Barriers.push(newBarrier);
+            this.healthBarrier.push(5);
+        }
+
+        //console.log("Player : " + this.Player.width + " " + this.Player.height);
+    }
+
+    addGameObjects() {
+        app.stage.addChild(this.Player);
+
+        for(let i = 0; i < this.nEnemies; ++i) {
+            app.stage.addChild(this.Enemies[i]);
+        }
+
+        for(let i = 0; i < this.nBarriers; ++i) {
+            app.stage.addChild(this.Barriers[i]);
         }
     }
 
-    let nBarriers = myRandom(5, 10);
-    for(let i = 0; i < nBarriers; ++i) {
-        var newBarrier = GameObject(myRandom(10, WIDTH - 10), myRandom(HEIGHT - 200, HEIGHT - 100), 0.2, barrierBuffImg);
-        app.stage.addChild(newBarrier);
-        Barrier.push(newBarrier);
-        healthBarrier.push(5);
+    generateBullet() {
+        let bulletBatchGen = [];
+
+        for(let i = 0; i < this.nEnemies; ++i) {
+            if(myRandom(0, 2000) < this.bulletDropProb) {
+                var newBullet = GameObject(this.Enemies[i].x, this.Enemies[i].y, 0.1, bulletBuffImg);
+                //console.log("Bullet : " + newBullet.x + " " + newBullet.y + ", " + newBullet.width + " " + newBullet.height);
+                bulletBatchGen.push(newBullet);
+                app.stage.addChild(newBullet);
+            }
+        }
+
+        if(bulletBatchGen.length) {
+            this.Bullets.push(bulletBatchGen);
+        }
+    }
+
+    generateMedic() {
+        if(myRandom(0, 2000) < this.helperDropProb) {
+            var newMedic = GameObject(myRandom(10, WIDTH - 10), myRandom(50, 100), 0.1, medicBuffImg);
+            this.Medics.push(newMedic);
+            app.stage.addChild(newMedic);
+        }
+    }
+
+    tick()
+    {
+        // Updating Score
+        scoreText.text = 'Score : ' + score.toString();
+
+        healthText.text = this.healthPlayer.toString();
+
+        // Checking Collision
+        for(let i = 0; i < this.Bullets.length; ++i) {
+            for(let j = 0; j < this.Bullets[i].length; ++j) {
+                // Bullet Player Collison
+                var collidedBulletPlayer = false;
+
+                var Px = this.Player.x;
+                var Py = this.Player.y;
+
+                var Bx = this.Bullets[i][j].x;
+                var By = this.Bullets[i][j].y;
+
+                if(Px > Bx && Px - Bx < this.Bullets[i][j].width) {
+                    if(Py > By && Py - By < this.Bullets[i][j].height) {
+                        collidedBulletPlayer = true;
+                    }
+                    else if(Py < By && By - Py < this.Player.height) {
+                        collidedBulletPlayer = true;
+                    }
+                }
+                else if(Px < Bx && Bx - Px < this.Player.width) {
+                    if(Py > By && Py - By < this.Bullets[i][j].height) {
+                        collidedBulletPlayer = true;
+                    }
+                    else if(Py < By && By - Py < this.Player.height) {
+                        collidedBulletPlayer = true;
+                    }
+                }
+
+                if(collidedBulletPlayer) {
+                    console.log("Bullet Player Collided");
+                    this.healthPlayer = Math.max(0, this.healthPlayer - 5);
+                    this.Bullets[i][j].y = HEIGHT + 50;
+                }
+
+                // Bullet Barrier Collision
+
+                for(let k = 0; k < this.Barriers.length; ++k) {
+                    if(this.healthBarrier[k]) {
+                        var collidedBulletBarrier = false;
+
+                        Px = this.Barriers[k].x;
+                        Py = this.Barriers[k].y;
+
+                        if(Px > Bx && Px - Bx < this.Bullets[i][j].width) {
+                            if(Py > By && Py - By < this.Bullets[i][j].height) {
+                                collidedBulletBarrier = true;
+                            }
+                            else if(Py < By && By - Py < this.Barriers[k].height) {
+                                collidedBulletBarrier = true;
+                            }
+                        }
+                        else if(Px < Bx && Bx - Px < this.Barriers[k].width) {
+                            if(Py > By && Py - By < this.Bullets[i][j].height) {
+                                collidedBulletBarrier = true;
+                            }
+                            else if(Py < By && By - Py < this.Barriers[k].height) {
+                                collidedBulletBarrier = true;
+                            }
+                        }
+
+                        if(collidedBulletBarrier) {
+                            console.log("Bullet Barrier Collided");
+                            if(this.healthBarrier[k] > 0) {
+                                this.healthBarrier[k] -= 1;
+                                this.Bullets[i][j].y = HEIGHT + 50;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Checking Healing
+        for(let i = 0; i < this.Medics.length; ++i) {
+            var healedMedicPlayer = false;
+
+            var Px = this.Player.x;
+            var Py = this.Player.y;
+
+            var Bx = this.Medics[i].x;
+            var By = this.Medics[i].y;
+
+            if(Px > Bx && Px - Bx < this.Medics[i].width) {
+                if(Py > By && Py - By < this.Medics[i].height) {
+                    healedMedicPlayer = true;
+                }
+                else if(Py < By && By - Py < this.Player.height) {
+                    healedMedicPlayer = true;
+                }
+            }
+            else if(Px < Bx && Bx - Px < this.Player.width) {
+                if(Py > By && Py - By < this.Medics[i].height) {
+                    healedMedicPlayer = true;
+                }
+                else if(Py < By && By - Py < this.Player.height) {
+                    healedMedicPlayer = true;
+                }
+            }
+
+            if(healedMedicPlayer) {
+                console.log("Medic Healed Player");
+                this.healthPlayer = Math.min(this.healthPlayer + 10, 100);
+                this.Medics[i].y = HEIGHT + 50;
+            }
+        }
+
+        // Enemy Tick
+        for(let i = 0; i < this.nEnemies; ++i) {
+            if(this.faceEast[i]) {
+                if(this.Enemies[i].x + 5 > WIDTH - 30) {
+                    this.faceEast[i] = false;
+                    this.Enemies[i].texture = PIXI.Texture.from(enemyBuffImgW);
+                    this.Enemies[i].x -= 5;
+                } else {
+                    this.Enemies[i].x +=  5;
+                }
+            }
+            else {
+                if(this.Enemies[i].x - 5 < 0) {
+                    this.faceEast[i] = true;
+                    this.Enemies[i].texture = PIXI.Texture.from(enemyBuffImgE);
+                    this.Enemies[i].x += 5;
+                } else {
+                    this.Enemies[i].x -=  5;
+                }
+            }
+        }
+
+        // Bullet Tick
+        if(this.Bullets.length > 4) {
+            for(let i = 0; i < this.Bullets[0].length; ++i) {
+                app.stage.removeChild(this.Bullets[0][i]);
+            }
+            this.Bullets.shift();
+        }
+
+        for(let i = 0; i < this.Bullets.length; ++i) {
+            for(let j = 0; j < this.Bullets[i].length; ++j) {
+                this.Bullets[i][j].y += BULLET_SPEED;
+            }
+        }
+
+        // Barrier Tick
+        for(let i = 0; i < this.Barriers.length; ++i) {
+            if(this.healthBarrier[i] === 0) {
+                app.stage.removeChild(this.Barriers[i]);
+                this.healthBarrier[i] = -10;
+            }
+        }
+
+        // Medic Tick
+        for(let i = 0; i < this.Medics.length; ++i) {
+            this.Medics[i].y += MEDIC_SPEED;
+        }
+
+        let len = this.Medics.length;
+        while(len && this.Medics[0].y > HEIGHT) {
+            app.stage.removeChild(this.Medics[0]);
+            len--;
+        }
+
+        // Player Tick
+        if(playerMoves) {
+            if(level.playerDirection === 'left' && level.Player.x - 5 > 0) {
+                level.Player.x -= 5;
+            }
+            else if(level.playerDirection === 'right' && level.Player.x + 5 < WIDTH) {
+                level.Player.x += 5;
+            }
+            playerMoves--;
+        }
     }
 }
 
-function playerMov(event) {
-    // console.log(window.screen.width  + ' ' + window.devicePixelRatio);
-    // console.log(event.x + ' ' + event.y);
-    // console.log(player.x + ' ' + player.y);
+let level = null;
 
+function playerMov(event) {
     var x = event.x;
 
-    if(player.x > x) {
-        playerMoves = Math.ceil((player.x - x)/5);
-        playerDirection = 'left';
-    }
-    else {
-        playerMoves = Math.ceil((x - player.x)/5);
-        playerDirection = 'right';
+    if(level && level.Player) {
+        if(level.Player.x > x) {
+            playerMoves = Math.ceil((level.Player.x - x)/5);
+            level.playerDirection = 'left';
+        }
+        else {
+            playerMoves = Math.ceil((x - level.Player.x)/5);
+            level.playerDirection = 'right';
+        }
     }
 }
 
 function playerMovKey(event) {
-    // console.log(window.screen.width  + ' ' + window.devicePixelRatio);
-    // console.log(event.x + ' ' + event.y);
-    // console.log(player.x + ' ' + player.y);
-
     var x = event.key;
 
-    if(x === 'ArrowLeft') {
-        player.x = Math.max(0, player.x - 15);
-        playerDirection = 'left';
+    if(level && level.Player) {
+        if(x === 'ArrowLeft') {
+            level.Player.x = Math.max(0, level.Player.x - 15);
+            level.playerDirection = 'left';
+        }
+        else if(x === 'ArrowRight') {
+            level.Player.x = Math.min(WIDTH, level.Player.x + 15);
+            level.playerDirection = 'right';
+        }
     }
-    else {
-        player.x = Math.min(WIDTH, player.x + 15);
-        playerDirection = 'right';
-    }
-
 }
 
 function startGame() {
     isHelipRunning = true;
+
     document.getElementById("start-button").style.visibility = "hidden";
-    document.getElementById("game-frame").appendChild(app.view);
-    app.stage.addChild(player);
+    document.body.appendChild(app.view);
 
-    generateLevel();
+    level = new Level(5, 10, 1500, 500);
 
-    for(let i = 0; i < Enemies.length; ++i) {
-        app.stage.addChild(Enemies[i]);
-    }
+    level.generateLevel();
+    level.addGameObjects();
 
     graphics.beginFill(0x080807);
     graphics.drawRect(8, 8, 104, 34);
