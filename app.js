@@ -1,3 +1,6 @@
+var Airtable = require('airtable');
+var base = new Airtable({apiKey: 'keyvcoBYjFEF0Z2mD'}).base('appY7E1lqNol7GdKF');
+
 const WIDTH = window.innerWidth;
 const HEIGHT = 600;
 
@@ -5,6 +8,29 @@ const ENEMY_SPEED = 5;
 const BULLET_SPEED = 5;
 const MEDIC_SPEED = 2;
 const PLAYER_SPEED = 10;
+
+let dataX = [];
+
+let DP = [[3,	5,	1800,	100],
+[5,	7,	1725,	150],
+[7,	9,	1650,	200],
+[9,	11,	1575,	250],
+[11,	13,	1500,	300],
+[13,	15,	1425,	350],
+[15,	17,	1350,	400],
+[17,	19,	1275,	450],
+[19,	21,	1200,	500],
+[21,	23,	1125,	550],
+[23,	25,	1050,	600],
+[25,	27,	975,	650],
+[27,	29,	900,	700],
+[29,	31,	825,	750],
+[31,	33,	750,	800],
+[33,	35,	675,	850],
+[35,	37,	600,	900],
+[37,	39,	525,	950],
+[39,	41,	450,	1000],
+[41,	43,	375,	1050]];
 
 // Adding Mouse Click Listener for the game
 document.addEventListener('click', playerMov);
@@ -38,7 +64,7 @@ let tickCount = 0;
 const MAX_TICK_COUNT = 60;
 
 let levelTimer = 0;
-const MAX_LEVEL_TIMER = 15;
+const MAX_LEVEL_TIMER = 10;
 
 let score = 0;
 
@@ -78,6 +104,12 @@ function tick() {
         score++;
         levelTimer++;
     }
+
+    if(levelTimer === MAX_LEVEL_TIMER) {
+        level.generateLevel();
+        level.addGameObjects();
+        levelTimer = 0;
+    }
 }
 
 function myRandom(low, high) {
@@ -96,11 +128,11 @@ function GameObject(posX, posY, scale, imgBuff) {
 }
 
 class Level {
-    constructor(nEnemies, nBarriers, bulletDropProb, helperDropProb) {
-        this.nEnemies = nEnemies;
-        this.nBarriers = nBarriers;
-        this.bulletDropProb = bulletDropProb;
-        this.helperDropProb = helperDropProb;
+    constructor() {
+        this.nEnemies = 0;
+        this.nBarriers = 0;
+        this.bulletDropProb = 0;
+        this.helperDropProb = 0;
 
         this.Player = null;
         this.Enemies = [];
@@ -113,11 +145,26 @@ class Level {
         this.healthBarrier = [];
         this.playerDirection = 'Right';
 
-        this.currLevel = 1;
+        this.currLevel = 0;
     }
 
     generateLevel() {
+        this.currLevel++;
+        console.log("Level : " + this.currLevel);
+
+        //retrieveParameters();
+
+        //let DP = dataX[this.currLevel - 1];
+        //console.log(DP);
+
+        this.nEnemies = DP[this.currLevel - 1][0];
+        this.nBarriers = DP[this.currLevel - 1][1];
+        this.bulletDropProb = DP[this.currLevel - 1][2];
+        this.helperDropProb = DP[this.currLevel - 1][3];
+
         app.stage.removeChildren(0, app.stage.children.length);
+
+        app.stage.addChild(graphics);
 
         var levelText = new PIXI.Text('Level : ' + this.currLevel.toString());
         levelText.x = WIDTH/2 - 50;
@@ -409,7 +456,7 @@ function startGame() {
     document.getElementById("start-button").style.visibility = "hidden";
     document.body.appendChild(app.view);
 
-    level = new Level(5, 10, 1500, 500);
+    level = new Level();
 
     level.generateLevel();
     level.addGameObjects();
@@ -432,3 +479,23 @@ app.ticker.add((delta) => {
     tick();
   }
 });
+
+function retrieveParameters() {
+    dataX = [];
+    base('DiffParam').select({
+        view: 'Grid view',
+    }).firstPage(function(err, records) {
+        if (err) { console.error(err); return; }
+        records.forEach(function(record) {
+            let res = [];
+            res.push(record.get('nEnemies'));
+            res.push(record.get('nBarriers'));
+            res.push(record.get('bulletDropProb'));
+            res.push(record.get('helperDropProb'));
+            //console.log("Res" + res);
+            dataX.push(res);
+        });
+    });
+
+    console.log(dataX[1]);
+}
