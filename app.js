@@ -236,7 +236,7 @@ class Level {
         let bulletBatchGen = [];
 
         for(let i = 0; i < this.nEnemies; ++i) {
-            if(myRandom(0, 2000) < this.bulletDropProb) {
+            if(this.bulletDropProb > myRandom(0, 2000)) {
                 var newBullet = GameObject(this.Enemies[i].x, this.Enemies[i].y, 0.1, bulletBuffImg);
                 //console.log("Bullet : " + newBullet.x + " " + newBullet.y + ", " + newBullet.width + " " + newBullet.height);
                 bulletBatchGen.push(newBullet);
@@ -252,7 +252,7 @@ class Level {
     }
 
     generateMedic() {
-        if(myRandom(0, 2000) < this.helperDropProb) {
+        if(this.helperDropProb > myRandom(0, 2000)) {
             var newMedic = GameObject(myRandom(10, WIDTH - 10), myRandom(50, 100), 0.1, medicBuffImg);
             this.Medics.push(newMedic);
             app.stage.addChild(newMedic);
