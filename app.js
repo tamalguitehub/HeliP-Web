@@ -511,7 +511,8 @@ function endGame() {
 */
 
     uploadScore(level.currLevel, score);
-
+    score = 0;
+    isHelipRunning = false;
     document.getElementById("start-button").style.visibility = "visible";
     document.getElementById("name").style.visibility = "visible";
 
