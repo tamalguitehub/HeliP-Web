@@ -9,8 +9,6 @@ const BULLET_SPEED = 5;
 const MEDIC_SPEED = 2;
 const PLAYER_SPEED = 10;
 
-let dataX = [];
-
 let DP = [[3,	5,	1800,	100],
 [5,	7,	1725,	150],
 [7,	9,	1650,	200],
@@ -31,6 +29,27 @@ let DP = [[3,	5,	1800,	100],
 [37,	39,	525,	950],
 [39,	41,	450,	1000],
 [41,	43,	375,	1050]];
+
+let DiffParamID = ['reck74mcMODSDe0S2',
+'recYA1uBJSHKAQliI',
+'recZl7pigTxIMqNfg',
+'recrRRnwCFlilTvxk',
+'recgjFwMmRCsNqmBD',
+'recCKlKDEHdQs0DIY',
+'recJsauYdjYwEYgQu',
+'recC9hjNL3uiamTzf',
+'rec5P24AfSctFIl8b',
+'rec8t8M3Y2Plbu07Z',
+'recf6Qna9SSC6AVWa',
+'recmPKdgr3bUTuNIO',
+'recrHSE8rBidGykgC',
+'recCA45vAcsNQa5mX',
+'recMb8OIAIy8BO6Vh',
+'recvzdRIjbgLzLl8x',
+'rec0JjtGNqKhkpVcD',
+'rectWRWBmdnvWAUfZ',
+'recp5am6OylTdq3mq',
+'recE6b8gWFGgek4dW'];
 
 // Adding Mouse Click Listener for the game
 document.addEventListener('click', playerMov);
@@ -64,7 +83,7 @@ let tickCount = 0;
 const MAX_TICK_COUNT = 60;
 
 let levelTimer = 0;
-const MAX_LEVEL_TIMER = 10;
+const MAX_LEVEL_TIMER = 15;
 
 let score = 0;
 
@@ -106,8 +125,16 @@ function tick() {
     }
 
     if(levelTimer === MAX_LEVEL_TIMER) {
-        level.generateLevel();
-        level.addGameObjects();
+        isHelipRunning = false;
+
+        if(confirm("Go to next Level")) {
+            isHelipRunning = true;
+            level.generateLevel();
+            level.addGameObjects();
+        } else {
+            endGame();
+        }
+
         levelTimer = 0;
     }
 }
@@ -150,12 +177,6 @@ class Level {
 
     generateLevel() {
         this.currLevel++;
-        console.log("Level : " + this.currLevel);
-
-        //retrieveParameters();
-
-        //let DP = dataX[this.currLevel - 1];
-        //console.log(DP);
 
         this.nEnemies = DP[this.currLevel - 1][0];
         this.nBarriers = DP[this.currLevel - 1][1];
@@ -226,6 +247,8 @@ class Level {
         if(bulletBatchGen.length) {
             this.Bullets.push(bulletBatchGen);
         }
+
+        score += bulletBatchGen.length;
     }
 
     generateMedic() {
@@ -273,9 +296,9 @@ class Level {
                 }
 
                 if(collidedBulletPlayer) {
-                    console.log("Bullet Player Collided");
                     this.healthPlayer = Math.max(0, this.healthPlayer - 5);
                     this.Bullets[i][j].y = HEIGHT + 50;
+                    score--;
                 }
 
                 // Bullet Barrier Collision
@@ -305,7 +328,6 @@ class Level {
                         }
 
                         if(collidedBulletBarrier) {
-                            console.log("Bullet Barrier Collided");
                             if(this.healthBarrier[k] > 0) {
                                 this.healthBarrier[k] -= 1;
                                 this.Bullets[i][j].y = HEIGHT + 50;
@@ -344,7 +366,6 @@ class Level {
             }
 
             if(healedMedicPlayer) {
-                console.log("Medic Healed Player");
                 this.healthPlayer = Math.min(this.healthPlayer + 10, 100);
                 this.Medics[i].y = HEIGHT + 50;
             }
@@ -450,10 +471,17 @@ function playerMovKey(event) {
     }
 }
 
+var UserName;
+
 function startGame() {
     isHelipRunning = true;
 
+    UserName = document.getElementById("name").value;
+    console.log(UserName);
+
     document.getElementById("start-button").style.visibility = "hidden";
+    document.getElementById("name").style.visibility = "hidden";
+
     document.body.appendChild(app.view);
 
     level = new Level();
@@ -469,6 +497,24 @@ function startGame() {
     graphics.endFill();
 
     app.stage.addChild(graphics);
+}
+
+function endGame() {
+    app.stage.removeChildren(0, app.stage.children.length);
+
+    /*var finalScoreText = new PIXI.Text("Final Score : " + score.toString());
+    finalScoreText.x = WIDTH/2 - 50;
+    finalScoreText.y = HEIGHT/2;
+
+    app.stage.addChild(finalScoreText);
+*/
+
+    uploadScore(level.currLevel, score);
+
+    document.getElementById("start-button").style.visibility = "visible";
+    document.getElementById("name").style.visibility = "visible";
+
+    document.body.removeChild(app.view);
 }
 
 // Add a ticker callback to move the sprite back and forth
@@ -498,4 +544,24 @@ function retrieveParameters() {
     });
 
     console.log(dataX[1]);
+}
+
+function uploadScore(level, score) {
+    if(UserName === "") {
+        return;
+    }
+    base('ScoreData').create([
+      {
+        "fields": {
+          "PlayerName": UserName,
+          "Score": score,
+          "Level": level
+        }
+      }
+    ], function(err, records) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+    });
 }
