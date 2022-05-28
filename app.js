@@ -9,7 +9,7 @@ const BULLET_SPEED = 5;
 const MEDIC_SPEED = 2;
 const PLAYER_SPEED = 10;
 
-let DP = [[8,	3,	1800,	100],
+let DP = [[8,	13,	1800,	100],
 [10,	5,	1725,	150],
 [12,	6,	1650,	200],
 [14,	8,	1575,	250],
